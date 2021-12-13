@@ -1,0 +1,96 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{algorithm}
+
+\usepackage{algpseudocode}
+%\usepackage{unicode-math}
+\title{STATS302\_Final}
+\author{Luka Mdivnai}
+\date{December 2021}
+
+\begin{document}
+
+\maketitle
+\section*{Part I}
+
+\section*{Part II}
+
+\section*{Part III}
+
+Since both Ridge and Lasso Regressions are linear models, the process of training them is similar to the process of training an ordinary linear regression (OLS).
+
+The main difference between the models comes from their respective loss functions which need to be minimized.
+
+First lets consider the objective function for OLS:
+\begin{displaymath} 
+L_{OLS}(\hat{\beta})=\sum_{i=1}^{n}{(y_i-\sum_{j=0}^{m}{\hat{\beta}_jx_{ij}})^2}
+\end{displaymath}
+\subsection*{Ridge}
+For ridge regression the loss function model is changed such that we can penalize the parameter estimates.This is the traditional sum-of-squares loss function with an added penalty function:
+
+\begin{displaymath} 
+L_{Ridge}(\hat{\beta})=\sum_{i=1}^{n}{(y_i-\sum_{j=0}^{m}{\hat{\beta}_jx_{ij}})^2} + \lambda\sum_{j=0}^{m}{\hat{\beta}_j^2}
+\end{displaymath}
+Here $\lambda$ is called the tuning parameter, which is determined separately. In general we can see that $$As\quad\lambda\rightarrow\infty,\hat{\beta}_{Ridge}\rightarrow0$$ $$As\quad\lambda \rightarrow 0, \hspace{0.2cm}  \hat\beta_{ridge} \rightarrow \hat\beta_{OLS}$$
+Let's now consider the matrix form of the function , which would be:
+\begin{displaymath} 
+(Y-X\beta)^T (Y-X\beta)+\lambda \beta^T \beta
+\end{displaymath}
+Which we also need to minimize. if we find the derivative with respect to $\beta$  and equate it to 0, we get:
+\begin{displaymath} 
+\frac{\partial (Y-X\beta)^T (Y-X\beta)+\lambda \beta^T \beta}{\partial \beta}= -2 X^T (Y-\beta^T X+2\lambda\beta =0
+\end{displaymath}
+\begin{displaymath} 
+X^T Y=X X\beta +\lambda\beta  
+\end{displaymath}
+Thus,  $ \hat{\beta}=(X^{T}X+\lambda I)^{-1}X^TX $ which is the analytical solution for the ridge regression.
+
+Now for practical applications, the ridge estimate for the parameters is found by gradient descent method. Gradient method is applicable in this case since the cost function is differentiable.
+The pseudo-code for the gradient descent would be :
+
+\begin{algorithm}
+\caption{Gradient Descent}\label{alg:cap}
+\begin{algorithmic}
+\State $i = 0$;
+\State $\nabla L(\beta_i)$ gradient of the loss function with respect to $\beta_i$
+\State $\eta$ is the learning rate
+\While{$\nabla L(\beta_i)\not \approx $ 0}
+
+    \State $\beta_{i+1}=\beta_i-\eta \nabla L(\beta_i)$
+
+    \State $i=i+1$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\subsection*{Lasso}
+Lasso method is similar to ridge regression. It differs from OLS(and ridge) by the penalty regularization function, the loss function for the lasso looks like:
+\begin{displaymath} 
+L_{Lasso}(\hat{\beta})=\sum_{i=1}^{n}{(y_i-\sum_{j=0}^{m}{\hat{\beta}_j x_{i j} })^2} + \lambda\sum_{j=0}^{m}{|\hat{\beta}_j|}
+\end{displaymath}
+Here $\lambda$ is the same tuning parameter as in ridge regression. But unlike ridge regression, lasso regression penalizes the absolute value of the sum of coefficients, which means that some coefficients will be exactly 0. This reduces the number of predictors the model uses.
+
+As we can see the penalty term of the loss function is non-differentiable, this makes the loss function non-differentiable. Thus, we don't have a closed-form analytical solution for the lasso method.
+Neither can we apply the gradient method to find the optimized parameters for the regression, but other techniques from convex analysis exist to find the solutions. Instead the coordinate descent method is often used,where at each step we optimize over one component of the unknown parameter vector, fixing all other components. 
+\begin{algorithm}[H]% Second algorithm
+\caption{Coordinate Descent}\label{alg:cap}
+\State Initialize $\beta_0=\hat{\beta}=(X^{T}X+\lambda I)^{-1}X^TX $
+\State Here $Soft(a,\lambda)=sing(a)(|a|-\lambda)_+$ For all $a,\lambda\in R$ 
+\Repeat
+\For{i=1,$\dots$}
+    \State $q_i=\sum_{j=1}^{n}{x_{i j}(y_i-\beta^T x_i + \beta_j x_{ij})}$
+    \State $p_i=\sum_{j=1}^{n}{x_{ij}^2}$
+    \State $\beta_i=soft(\frac{p_i}{q_i},\frac{\lambda}{q_i})$
+\EndFor\Until{$Converges$}
+\end{algorithm}
+
+
+\subsection*{Choosing $\lambda$}
+In general, these methods are applied using popular packages like scikit-learn. Both ridge and lasso regression models are optimized through one hyperparameter $\lambda$. The process of hyper-parameter optimization is same for both of them.
+
+Unlike OLS, ridge and lasso regressions need 3 sets of data: Training,Test and Validation.
+We train the model on the training set, get the optimal parameters $\hat{\beta}$. We choose a set of possible $\lambda$ values, and do a cross-validation error for each of these values on the validation set. The $\lambda$ which corresponds to the smallest error value will be chosen as the optimal value. The performance of the model will be evaluated on the test set, using optimal $\hat{\beta}$ and $\lambda$ values.
+\end{document}
