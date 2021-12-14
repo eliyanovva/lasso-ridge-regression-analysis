@@ -13,12 +13,49 @@
 
 \maketitle
 \section*{Part I}
+The lasso and ridge regressions are types of linear regression. Thus both of them are used for regression learning tasks. 
+
+Ordinary least squares (OLS) linear regression has weaknesses, since the regular linear regression includes variables with low predictive power, it often produces low-bias, high variance models. For example when severe multicollinearity exists.To increase the overall performance of the model we can try to fix multicollinearity, balance the bias and variance, which is often done using regularization.
+
+Ridge and lasso regression are both methods for regularizing the coefficient estimates by shrinking them towards 0. Regularization is done by adding a penalty term to the cost function of the model. 
+
+For Ridge regression the penalty term is L-2 Norm $\lambda ||\beta||_2 = \lambda  \sum_{i=1}^{n}{\beta_i^2}$(here lambda is tuning parameter which controls the amount of regularization), the regularization term decreases the values of coefficients, which in turns significantly reduces the variance at the expense of bias.  Let us define the number of predictors as $p$, and number of observations $n$, even if p>n the ridge regression will be able to select more than $n$  relevant predictors if necessary, this is something OLS fails to achieve. The ridge regression is applied to treat multicollinearity, it increases bias and reduces variance.
+
+For the lasso regression(least absolute shrinkage and selection operator) has a different penalty term, the L-1 Norm, $\lambda ||\beta||_1 = \lambda  \sum_{i=1}^{n}{|\beta_i|}$. The key difference that the different penalty term creates is that in the lasso technique less important feature’s coefficient to exactly zero thus, removing some feature altogether. But when $p>n$, lasso model will use at most n features for prediction.Also for colinear features only one of them will be chosen randomly on each iteration, which makes the model less interpretable. Lasso is often used for feature selection.
+
+In general, which of the methods is used depends on the data. Lasso is used when small number of the features have substantial predictive power. Ridge regression will perform better when the number of predictors is large with roughly equal coefficients. Usually cross-validation is used to compare the performance of each model and choose the optimal one.
+
 
 \section*{Part II}
+As mentioned in the previous part, Ridge Regression functions in a very similar manner like the OLS. The latter aims to minimize the value of the Residual Sum of Squares that is determined with the following formula:
+
+\begin{displaymath}
+Rss=\sum_{i=1}^{n}{(y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij})^2}
+\end{displaymath}
+Ridge Regression differs from OLS in that it minimizes differently. This model minimises the sum of the RSS with a penalty term. As shown below:
+\begin{displaymath}
+\beta_{Ridge} = Rss + \lambda\sum_{j=1}^{p}\beta_j^2
+\end{displaymath}
+To understand this difference conceptually, we must remember that as mentioned in Part I, one of OLS's weaknesses is that it generally produces Low-Bias but High-Variances results.
+
+This is a problem because it implies that the model can easily over fit the training data, which returns a poor performance upon the testing data. Ridge Regression, takes this issue into consideration and finds a new line of best fit. This new line will not fit the training data as well as the OLS, but it will fit the testing data much better. Hence, its property of increased Bias that results into reduced Variance. In other words, Ridge Regression provides a better long term performance compared to OLS at the cost of starting with a slightly worse fit.
+
+Ridge Regression relies on its tuning parameter $\lambda$ to control the impact that the RSS value and the rest of penalty term has over the Ridge Regression coefficient.As $\lambda$ increases to Infinity, the Ridge coefficient will converge to 0, as the value of the penalty term increases. As $\lambda$ equals to zero, the Ridge Regression will just output the same result as the OLS.
+
+
+However, when applying Ridge Regression, there is the task of selecting the correct [CROSS VALIDATION, lambda value selection and yaliyaliyada]
+
+But Ridge Regression's improved performance encounters limitations when the amount of variables (or predictors) increases. As the penalty term part of the Ridge Regression coefficient indicated:
+\begin{displaymath}
+\lambda\sum_{j=1}^{p}\beta_j^2
+\end{displaymath}
+
+Ridge Regression takes into account all the predictors no matter how relevant they actually are
+
 
 \section*{Part III}
 
-Since both Ridge and Lasso Regressions are linear models, the process of training them is similar to the process of training an ordinary linear regression (OLS).
+Since both Ridge and Lasso Regressions are linear models, the process of training them is similar to the process of training an ordinary least squares(OLS) linear regression .
 
 The main difference between the models comes from their respective loss functions which need to be minimized.
 
@@ -32,7 +69,7 @@ For ridge regression the loss function model is changed such that we can penaliz
 \begin{displaymath} 
 L_{Ridge}(\hat{\beta})=\sum_{i=1}^{n}{(y_i-\sum_{j=0}^{m}{\hat{\beta}_jx_{ij}})^2} + \lambda\sum_{j=0}^{m}{\hat{\beta}_j^2}
 \end{displaymath}
-Here $\lambda$ is called the tuning parameter, which is determined separately. In general we can see that $$As\quad\lambda\rightarrow\infty,\hat{\beta}_{Ridge}\rightarrow0$$ $$As\quad\lambda \rightarrow 0, \hspace{0.2cm}  \hat\beta_{ridge} \rightarrow \hat\beta_{OLS}$$
+Here $\lambda$ is called the tuning parameter, which how much the model is penalized and is determined separately. In general we can see that $$As\quad\lambda\rightarrow\infty,\hat{\beta}_{Ridge}\rightarrow0$$ $$As\quad\lambda \rightarrow 0, \hspace{0.2cm}  \hat\beta_{ridge} \rightarrow \hat\beta_{OLS}$$
 Let's now consider the matrix form of the function , which would be:
 \begin{displaymath} 
 (Y-X\beta)^T (Y-X\beta)+\lambda \beta^T \beta
@@ -74,7 +111,7 @@ L_{Lasso}(\hat{\beta})=\sum_{i=1}^{n}{(y_i-\sum_{j=0}^{m}{\hat{\beta}_j x_{i j} 
 Here $\lambda$ is the same tuning parameter as in ridge regression. But unlike ridge regression, lasso regression penalizes the absolute value of the sum of coefficients, which means that some coefficients will be exactly 0. This reduces the number of predictors the model uses.
 
 As we can see the penalty term of the loss function is non-differentiable, this makes the loss function non-differentiable. Thus, we don't have a closed-form analytical solution for the lasso method.
-Neither can we apply the gradient method to find the optimized parameters for the regression, but other techniques from convex analysis exist to find the solutions. Instead the coordinate descent method is often used,where at each step we optimize over one component of the unknown parameter vector, fixing all other components. 
+Neither can we apply the gradient method to find the optimized parameters for the regression, but other techniques from convex analysis exist to find the solutions. Instead we use the coordinate descent method,where at each step we optimize over one component of the unknown parameter vector, fixing all other components. 
 \begin{algorithm}[H]% Second algorithm
 \caption{Coordinate Descent}\label{alg:cap}
 \State Initialize $\beta_0=\hat{\beta}=(X^{T}X+\lambda I)^{-1}X^TX $
@@ -91,6 +128,6 @@ Neither can we apply the gradient method to find the optimized parameters for th
 \subsection*{Choosing $\lambda$}
 In general, these methods are applied using popular packages like scikit-learn. Both ridge and lasso regression models are optimized through one hyperparameter $\lambda$. The process of hyper-parameter optimization is same for both of them.
 
-Unlike OLS, ridge and lasso regressions need 3 sets of data: Training,Test and Validation.
+Ridge and lasso regressions need several sets of data for the training process: Training,Test and Validation.
 We train the model on the training set, get the optimal parameters $\hat{\beta}$. We choose a set of possible $\lambda$ values, and do a cross-validation error for each of these values on the validation set. The $\lambda$ which corresponds to the smallest error value will be chosen as the optimal value. The performance of the model will be evaluated on the test set, using optimal $\hat{\beta}$ and $\lambda$ values.
 \end{document}
